@@ -10,6 +10,8 @@ const app = express();
 const port = 3000;
 const secretKey = '987654321'; // Change this to a secure secret key
 
+////////// LOLLLLLLLLLLLLLLLLLLLLLLLL
+
 app.use(cors());
 app.use(express.json());
 
@@ -69,7 +71,9 @@ app.post("/login", async (req, res) => {
             userEmail: result[0].user_email,
             userName: result[0].user_name,
             userPhone: result[0].user_phone,
+            user_type: result[0].user_type, // Assuming you have a user_type field in your database ===========================================
           }, secretKey);
+          
 
           res.status(200).json({
             token,
@@ -135,6 +139,7 @@ app.post("/register", async (req, res) => {
               userEmail: registerEmail,
               userName: registerUsername,
               userPhone: registerPhoneNumber,
+              user_type: 'patient', // or 'admin' or any other role ==================================================================
             }, secretKey);
 
             // Log user information
@@ -167,13 +172,14 @@ app.get('/getUser', (req, res) => {
   try {
     const decodedToken = jwt.verify(token, secretKey);
 
-    const { userId, userEmail, userName, userPhone } = decodedToken;
+    const { userId, userEmail, userName, userPhone, user_type } = decodedToken;
 
     res.status(200).json({
       userId,
       userName,
       userEmail,
       userPhone,
+      user_type,
     });
   } catch (error) {
     console.error('Error decoding token:', error);
@@ -238,8 +244,6 @@ app.get('/getUser', (req, res) => {
  //// CHECKPOINT
 
 
-
-
  app.get('/getAllAppointments', (req, res) => {
   db.query('SELECT * FROM `appointment_table`', (err, data) => {
     if (err) {
@@ -250,6 +254,38 @@ app.get('/getUser', (req, res) => {
     }
   });
 });
+
+
+
+
+
+
+
+app.delete('/deleteAppointment/:id', (req, res) => {
+  const appointmentId = req.params.id;
+
+  db.query('DELETE FROM `appointment_table` WHERE appointment_id = ?', [appointmentId], (err, result) => {
+    if (err) {
+      console.error('Error deleting appointment:', err);
+      res.status(500).send('Error deleting appointment');
+    } else {
+      console.log(`Appointment with ID ${appointmentId} deleted successfully`);
+      res.status(200).send(`Appointment with ID ${appointmentId} deleted successfully`);
+    }
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
