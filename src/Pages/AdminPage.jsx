@@ -38,40 +38,40 @@ const Admin_Page = () => {
     handleEditFormSubmit();
   };
 
-  const handleEditFormSubmit = () => {
-    // Update the selected appointment in the state
-    const updatedAppointments = appointments.map((appointment) =>
-      appointment === selectedAppointment
-        ? { ...selectedAppointment, status: editedStatus }
-        : appointment
+  const handleDeleteClick = (appointment) => {
+    // Perform delete logic here
+  
+    // For example, you can filter out the selected appointment and update the state
+    const updatedAppointments = appointments.filter(
+      (item) => item.appointment_id !== appointment.appointment_id
     );
     setAppointments(updatedAppointments);
-    setSelectedAppointment(null);
-
-    // Update the appointment on the server
-    updateAppointment(selectedAppointment);
+  
+    // Perform the delete operation on the server
+    deleteAppointment(appointment);
   };
 
-  const updateAppointment = async (editedData) => {
+
+
+  const deleteAppointment = async (appointment) => {
     try {
-      const response = await fetch('http://localhost:3000/updateAppointment', {
-        method: 'PUT',
+      const response = await fetch(`http://localhost:3000/deleteAppointment/${appointment.appointment_id}`, {
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(editedData),
       });
-   
+  
       if (response.ok) {
-        console.log('Appointment updated successfully');
+        console.log('Appointment deleted successfully');
       } else {
-        console.error('Error updating appointment:', response.statusText);
+        console.error('Error deleting appointment:', response.statusText);
       }
     } catch (error) {
-      console.error('Error updating appointment:', error);
+      console.error('Error deleting appointment:', error);
     }
-   };
-   
+  };
+  
 
   return (
     <div className="admin-container">
@@ -89,7 +89,6 @@ const Admin_Page = () => {
               <th>Date</th>
               <th>Time</th>
               <th>Note</th>
-              <th>Status</th>
               <th>Delete</th>
             </tr>
           </thead>
@@ -105,26 +104,16 @@ const Admin_Page = () => {
                 <td>{appointment.date}</td>
                 <td>{appointment.time}</td>
                 <td>{appointment.note}</td>
+               
                 <td>
-                  {isEditing && selectedAppointment === appointment ? (
-                    <Select
-                      value={editedStatus}
-                      onChange={(e) => setEditedStatus(e.target.value)}
-                    >
-                      <MenuItem value="Approved">Approved</MenuItem>
-                      <MenuItem value="Declined">Declined</MenuItem>
-                    </Select>
-                  ) : (
-                    appointment.status
-                  )}
-                </td>
-                <td>
-                  {isEditing && selectedAppointment === appointment ? (
-                    <button onClick={handleSaveClick}>Save</button>
-                  ) : (
-                    <button onClick={() => handleEditClick(appointment)}>X</button>
-                  )}
-                </td>
+  {isEditing && selectedAppointment === appointment ? (
+    <button onClick={handleSaveClick}>Save</button>
+  ) : (
+    <>
+      <button onClick={() => handleDeleteClick(appointment)}>Delete</button>
+    </>
+  )}
+</td>
               </tr>
             ))}
           </tbody>
